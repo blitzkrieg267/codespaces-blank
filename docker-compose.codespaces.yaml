@@ -1,0 +1,51 @@
+services:
+  postiz:
+    network_mode: host
+    networks: !reset []
+    environment:
+      MAIN_URL: ${POSTIZ_PUBLIC_URL}
+      FRONTEND_URL: ${POSTIZ_PUBLIC_URL}
+      NEXT_PUBLIC_BACKEND_URL: ${POSTIZ_PUBLIC_URL}/api
+      JWT_SECRET: ${POSTIZ_JWT_SECRET}
+      DATABASE_URL: postgresql://postiz-user:postiz-password@127.0.0.1:5432/postiz-db-local
+      REDIS_URL: redis://127.0.0.1:6379
+      TEMPORAL_ADDRESS: 127.0.0.1:7233
+      FACEBOOK_APP_ID: ${FACEBOOK_APP_ID}
+      FACEBOOK_APP_SECRET: ${FACEBOOK_APP_SECRET}
+
+  postiz-postgres:
+    network_mode: host
+    networks: !reset []
+
+  postiz-redis:
+    network_mode: host
+    networks: !reset []
+
+  temporal:
+    network_mode: host
+    networks: !reset []
+    healthcheck:
+      test: ["CMD", "temporal", "operator", "cluster", "health", "--address", "127.0.0.1:7233"]
+    environment:
+      POSTGRES_SEEDS: 127.0.0.1
+      DB_PORT: "5433"
+      ES_SEEDS: 127.0.0.1
+
+  temporal-postgresql:
+    network_mode: host
+    networks: !reset []
+    command: ["postgres", "-p", "5433"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal -p 5433"]
+
+  temporal-elasticsearch:
+    network_mode: host
+    networks: !reset []
+
+  temporal-admin-tools:
+    network_mode: host
+    networks: !reset []
+
+  temporal-ui:
+    network_mode: host
+    networks: !reset []
